@@ -1,0 +1,10 @@
+APP 5S – versão instalável (PWA) – Rev. 09 (base online + PIN da equipe)
+
+Publicar no GitHub Pages (repositório app-5S):
+1. Na página do repositório: "uploading an existing file" (ou Add file > Upload files).
+2. Arraste TUDO o que está dentro desta pasta (index.html, sw.js, manifest.webmanifest, LEIA-ME.txt e a pasta icons) > Commit changes.
+3. Settings > Pages > Branch: main / (root) > Save.  Link: https://kafkia.github.io/app-5S/
+
+Instalar: Android (Chrome) botão "Instalar app"; iPhone (Safari) Compartilhar > Adicionar à Tela de Início.
+No 1º uso cada aparelho pede o PIN da equipe. Os dados ficam na base online (Supabase) e aparecem para todos.
+Backup: no notebook (Chrome/Edge), aba Dados > Pasta de backup (OneDrive) > escolha OneDrive > Aretia > 01 - 5S.
