@@ -10,7 +10,7 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
 
-<meta name="app-rev" content="Rev. 18">
+<meta name="app-rev" content="Rev. 19">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" media="print" onload="this.media=&#39;all&#39;">
 <style>
@@ -359,7 +359,22 @@ html{-webkit-text-size-adjust:100%}
 .applogo{width:40px;height:40px;border-radius:10px;flex:none}
 #inst{background:var(--accent);color:#1b1307;border:0;border-radius:999px;padding:6px 12px;font-weight:700;font-size:13px;cursor:pointer}
 @media (max-width:480px){.applogo{width:34px;height:34px}}
-@media (max-width:480px){.brand .hs{display:none}.brand h1{white-space:nowrap}.brand{gap:8px}.logos{padding:4px 6px;gap:6px}}
+
+/* ===== notebook / tela grande: mesmo link, layout mais largo ===== */
+@media (min-width:1100px){
+  .top-in,main{max-width:1440px;padding-left:28px;padding-right:28px}
+  .top-in{display:grid;grid-template-columns:auto 1fr auto;align-items:center;column-gap:24px;padding-top:8px;padding-bottom:0}
+  .top-in .brand{gap:16px}.top-in .tabs{justify-content:center}.top-in .tab{padding:16px 14px}
+  .hdr2{flex-wrap:nowrap}
+  #x-list{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px!important;align-items:start}
+  #x-list > :not(.act){grid-column:1/-1}
+  #f-qs{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}
+  #f-qs > :not(.q){grid-column:1/-1}
+}
+@media (min-width:1600px){ #x-list{grid-template-columns:repeat(3,minmax(0,1fr))} }
+html[data-dev="notebook"] .phadd.cam{display:none}
+.q.drop{outline:3px dashed var(--accent);outline-offset:-3px}
+@media (max-width:480px){.brand h1 small{display:none}.brand .hs{display:none}.brand h1{white-space:nowrap}.brand{gap:8px}.logos{padding:4px 6px;gap:6px}}
 .act .field,.form-new .field,.pa-g .field{min-width:0}
 input,select,textarea{max-width:100%;min-width:0}
 input[type=date]{-webkit-appearance:none;appearance:none;display:block}
@@ -481,7 +496,7 @@ window.addEventListener('load',function(){setTimeout(function(){if(!window.__5sO
       <div id="f-qs" style="display:flex;flex-direction:column;gap:10px"></div>
       <div class="card pad" style="display:flex;flex-direction:column;gap:10px">
         <div><span class="label">Fotos gerais da auditoria</span><div class="sub">Visão geral da área, quadro 5S, pontos de destaque. As fotos de cada Não OK ficam na própria pergunta.</div></div>
-        <div class="phrow"><div class="ph" id="ph-0"></div><label class="phadd"><input type="file" accept="image/*" capture="environment" hidden data-q="0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg> Câmera</label><label class="phadd"><input type="file" accept="image/*,.heic,.heif" multiple hidden data-q="0">🖼️ Galeria</label></div>
+        <div class="phrow"><div class="ph" id="ph-0"></div><label class="phadd cam"><input type="file" accept="image/*" capture="environment" hidden data-q="0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg> Câmera</label><label class="phadd"><input type="file" accept="image/*,.heic,.heif" multiple hidden data-q="0"> 🖼️ Galeria</label></div>
       </div>
       <div class="card pad"><label class="label" for="f-note">Comentário geral (opcional)</label><textarea id="f-note" rows="2" style="margin-top:6px"></textarea></div>
       <div class="stickybar"><span class="sub" id="f-live"></span><button class="btn acc" id="f-save" disabled>Salvar auditoria</button></div>
@@ -1338,7 +1353,7 @@ $("a-start").onclick = () => {
   const a = AREA[A.area];
   const s = CFG.sensos[A.senso];
   $("f-head").innerHTML = '<span class="dot" style="background:'.concat(a.color, '"></span>').concat(esc(a.name.split(" (")[0]), ' · <span style="color:var(').concat(SC[A.senso], ')">').concat(s.code, " ").concat(esc(s.jp), "</span> · ").concat(fmtD($("a-date").value));
-  $("f-qs").innerHTML = formQs().map((q) => '<div class="card q" style="--c:var('.concat(SC[q.si], ')" data-n="').concat(q.n, '">\n      <div class="label" style="color:var(').concat(SC[q.si], ')">').concat(CFG.sensos[q.si].code, " · Pergunta ").concat(q.n, '</div><div class="t">').concat(esc(q.t), '</div>\n      <div class="ans"><button data-v="ok" aria-pressed="false">Sim · OK</button><button data-v="nok" aria-pressed="false">Não · Não OK</button></div>\n      <input type="text" id="obs-').concat(q.n, '" placeholder="Observação (obrigatória se Não OK)" aria-label="Observação da pergunta ').concat(q.n, '">\n      <div class="phrow"><div class="ph" id="ph-').concat(q.n, '"></div><label class="phadd"><input type="file" accept="image/*" capture="environment" hidden data-q="').concat(q.n, '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg> Câmera</label><label class="phadd"><input type="file" accept="image/*,.heic,.heif" multiple hidden data-q="').concat(q.n, '">🖼️ Galeria</label></div>\n      <div class="pa" id="pa-').concat(q.n, '"></div></div>')).join("");
+  $("f-qs").innerHTML = formQs().map((q) => '<div class="card q" style="--c:var('.concat(SC[q.si], ')" data-n="').concat(q.n, '">\n      <div class="label" style="color:var(').concat(SC[q.si], ')">').concat(CFG.sensos[q.si].code, " · Pergunta ").concat(q.n, '</div><div class="t">').concat(esc(q.t), '</div>\n      <div class="ans"><button data-v="ok" aria-pressed="false">Sim · OK</button><button data-v="nok" aria-pressed="false">Não · Não OK</button></div>\n      <input type="text" id="obs-').concat(q.n, '" placeholder="Observação (obrigatória se Não OK)" aria-label="Observação da pergunta ').concat(q.n, '">\n      <div class="phrow"><div class="ph" id="ph-').concat(q.n, '"></div><label class="phadd cam"><input type="file" accept="image/*" capture="environment" hidden data-q="').concat(q.n, '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg> Câmera</label><label class="phadd"><input type="file" accept="image/*,.heic,.heif" multiple hidden data-q="').concat(q.n, '"> 🖼️ Galeria</label></div>\n      <div class="pa" id="pa-').concat(q.n, '"></div></div>')).join("");
   phClear(A.id);
   A.id = newId($("a-date").value, A.area);
   $("ph-0").innerHTML = "";
@@ -4691,6 +4706,49 @@ async function whoAmI(greet) {
   } catch (e) {
   }
 }
+(function() {
+  const set = () => {
+    const nb = matchMedia("(pointer:fine)").matches && !("ontouchstart" in window) && innerWidth >= 900;
+    document.documentElement.dataset.dev = nb ? "notebook" : "celular";
+    document.querySelectorAll(".phadd:not(.cam)").forEach((l) => {
+      const i = l.querySelector("input");
+      if (!i || !i.dataset.q) return;
+      const n = [...l.childNodes].find((x) => x.nodeType === 3 && x.textContent.trim());
+      if (n) n.textContent = nb ? " 📎 Anexar foto" : " 🖼️ Galeria";
+    });
+  };
+  set();
+  addEventListener("resize", () => {
+    clearTimeout(set._t);
+    set._t = setTimeout(set, 200);
+  });
+  new MutationObserver(() => {
+    clearTimeout(set._m);
+    set._m = setTimeout(set, 50);
+  }).observe(document.getElementById("f-qs"), { childList: true });
+  const fq = document.getElementById("f-qs");
+  fq.addEventListener("dragover", (e) => {
+    const q = e.target.closest(".q");
+    if (!q || !A.id) return;
+    e.preventDefault();
+    q.classList.add("drop");
+  });
+  fq.addEventListener("dragleave", (e) => {
+    const q = e.target.closest(".q");
+    if (q) q.classList.remove("drop");
+  });
+  fq.addEventListener("drop", async (e) => {
+    const q = e.target.closest(".q");
+    if (!q || !A.id) return;
+    e.preventDefault();
+    q.classList.remove("drop");
+    const n = +q.dataset.n;
+    if (A.answers[n] !== "nok" && A.answers[n] !== "ok") return toast("Responda a pergunta antes de anexar a foto.");
+    await phAdd(Array.from(e.dataTransfer.files || []), { owner: A.id, q: n, kind: "problema" });
+    renderQPhotos(n);
+    updProg();
+  });
+})();
 window.__gameReady = true;
 if (MT) {
   document.title = "Aretia 5S" + (COMPANY ? " · " + COMPANY.name : "");
