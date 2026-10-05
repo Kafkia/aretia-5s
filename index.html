@@ -10,7 +10,7 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
 
-<meta name="app-rev" content="Rev. 16">
+<meta name="app-rev" content="Rev. 17">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" media="print" onload="this.media=&#39;all&#39;">
 <style>
@@ -1332,6 +1332,40 @@ function updProg() {
   else if (ph) $("f-live").innerHTML += " · ".concat(ph, " ação(ões) no Plano");
   $("f-save").disabled = done < qs.length || miss > 0;
 }
+const ACT_SUG = [
+  "Separar o que não é usado no dia a dia, aplicar etiqueta vermelha e retirar do local",
+  "Retirar materiais, ferramentas e documentos sem uso nos últimos 30 dias (etiqueta vermelha / área de descarte)",
+  "Definir o uso de cada item guardado; o que não tiver uso definido vai para a área de etiqueta vermelha",
+  "Remover materiais obsoletos ou vencidos e dar o destino correto (descarte, devolução ou sucata)",
+  "Eliminar o acúmulo do posto e liberar o espaço de trabalho",
+  "Definir local fixo para cada item, identificar com etiqueta e demarcar no padrão",
+  "Reposicionar os itens mais usados perto do ponto de uso, em altura de fácil acesso",
+  "Endereçar e identificar ferramentas e documentos para achar sem perguntar (quadro de sombras / etiquetas)",
+  "Organizar os itens por frequência de uso, tipo ou tamanho, com lógica visual clara",
+  "Instalar rótulos, cores e sinalizações para facilitar a localização",
+  "Fazer limpeza completa do local e retirar as sujeiras visíveis",
+  "Definir as responsabilidades de limpeza do posto e envolver os colaboradores na rotina",
+  "Limpar e identificar a fonte de sujeira; abrir etiqueta de anomalia para vazamentos e desgastes",
+  "Criar e afixar o plano de limpeza diário e semanal do local",
+  "Incluir pontos de inspeção na rotina de limpeza e registrar as anomalias encontradas",
+  "Padronizar etiquetas, cores e quadros do local e fazer a manutenção dos padrões visuais",
+  "Documentar e expor os procedimentos de limpeza, ordenação e descarte no local",
+  "Alinhar o local aos critérios padrão de organização e limpeza da fábrica",
+  "Programar auditoria e treinamento de 5S periódicos para a área",
+  "Reforçar o uso correto de EPIs e higiene: orientar a equipe e repor o que faltar",
+  "Incluir a rotina de 5S no início/fim de turno com verificação pelo líder",
+  "Implantar feedback/reconhecimento do 5S (quadro da área e destaque nas reuniões)",
+  "Líder da área incluir a verificação do 5S na rotina diária (Gestão no Genba)",
+  "Definir meta de 5S da área e acompanhar a evolução no quadro de gestão",
+  "Tratar o desvio na hora e registrar a lição aprendida para a equipe"
+];
+function sugAct(n) {
+  return ACT_SUG[n - 1] || "Corrigir o desvio apontado na auditoria";
+}
+function sugDesc(n) {
+  const o = A.obs && A.obs[n] || ($("obs-" + n) ? $("obs-" + n).value.trim() : "");
+  return o || (QN[n - 1] ? QN[n - 1].text.replace(/\?$/, "") + " – não atende" : "");
+}
 const PA_REQ = [["action", "Ação (como)"], ["resp", "Responsável (quem)"], ["due", "Prazo (quando)"]];
 function paMissing() {
   if (!A.id) return 0;
@@ -1356,18 +1390,31 @@ function renderQPhotos(n) {
     return;
   }
   const ar = AREA[A.area], date = $("a-date").value;
-  box.innerHTML = list.length ? '<div class="label" style="color:var(--bad)">Plano de Ação – 1 ação por foto (obrigatório)</div>' + list.map((p, i) => {
+  box.innerHTML = list.length ? '<div class="label" style="color:var(--bad)">Plano de Ação – gerado automaticamente (1 ação por foto) · revise se quiser</div>' + list.map((p, i) => {
     var _a2, _b2, _c;
-    const v = (_a2 = A.pa)[_b2 = p.id] || (_a2[_b2] = { desc: "", action: "", resp: ar.lider || "", due: addDays(date, 14) });
+    const v = (_a2 = A.pa)[_b2 = p.id] || (_a2[_b2] = { desc: sugDesc(n), action: sugAct(n), resp: ar.lider || "", due: addDays(date, 14), auto: true });
     const miss = PA_REQ.filter(([k]) => !String(v[k] || "").trim()).length;
     const id = esc(p.id);
     return '<div class="pa-item'.concat(miss ? " miss" : "", '" data-pid="').concat(id, '">\n      <div class="pa-top"><span class="x"><img src="').concat(p.data, '" alt="Foto ').concat(i + 1, '" data-view="').concat(id, '"><button type="button" data-rmph="').concat(id, '" aria-label="Remover foto">×</button></span>\n        <div class="field" style="flex:1"><label class="label" for="pd-').concat(id, '">Foto ').concat(i + 1, ' · problema (o quê / onde)</label><input type="text" id="pd-').concat(id, '" data-pa="desc" value="').concat(esc(v.desc), '" placeholder="').concat(esc(((_c = A.obs) == null ? void 0 : _c[n]) || $("obs-" + n).value || "Descreva o que a foto mostra"), '"></div></div>\n      <div class="pa-g">\n        <div class="field w"><label class="label" for="pac-').concat(id, '">Ação (como) *</label><input type="text" id="pac-').concat(id, '" data-pa="action" value="').concat(esc(v.action), '" placeholder="O que será feito"></div>\n        <div class="field"><label class="label" for="par-').concat(id, '">Responsável *</label><input type="text" id="par-').concat(id, '" data-pa="resp" value="').concat(esc(v.resp), '"></div>\n        <div class="field"><label class="label" for="pau-').concat(id, '">Prazo *</label><input type="date" id="pau-').concat(id, '" data-pa="due" value="').concat(esc(v.due), '"></div>\n      </div></div>');
-  }).join("") : '<div class="sub">Tire ao menos uma foto do problema: cada foto vira uma ação do Plano. Sem foto, a ação é criada para preencher depois.</div>';
+  }).join("") : '<div class="sub">Tire a foto do problema: o Plano de Ação é gerado na hora (ação, responsável e prazo de 15 dias), a partir da pergunta, da observação e da área.</div>';
 }
 $("f-qs").addEventListener("input", (e) => {
   var _a2, _b2;
+  if (e.target.id && e.target.id.startsWith("obs-")) {
+    const n = +e.target.id.slice(4);
+    phOf(A.id, n).forEach((p) => {
+      const v2 = A.pa[p.id];
+      if (v2 && v2.auto) {
+        v2.desc = sugDesc(n);
+        const i = document.getElementById("pd-" + p.id);
+        if (i) i.value = v2.desc;
+      }
+    });
+    return;
+  }
   const f = e.target.dataset.pa;
   if (!f) return;
+  if (f === "desc" && A.pa[e.target.closest(".pa-item").dataset.pid]) A.pa[e.target.closest(".pa-item").dataset.pid].auto = false;
   const it = e.target.closest(".pa-item");
   const v = (_a2 = A.pa)[_b2 = it.dataset.pid] || (_a2[_b2] = {});
   v[f] = e.target.value;
@@ -1956,7 +2003,7 @@ function addActionsFrom(doc, pa) {
         q: n,
         photo: p.id,
         desc: (v.desc || doc.obs[n] || q.text) + (fotos.length > 1 ? " (foto ".concat(i + 1, "/").concat(fotos.length, ")") : ""),
-        action: v.action || "",
+        action: v.action || sugAct(n),
         resp: v.resp || AREA[doc.area].lider,
         due: v.due || addDays(doc.date, 14),
         status: "Aberto",
@@ -1973,7 +2020,7 @@ function addActionsFrom(doc, pa) {
       senso: CFG.sensos[q.si].code,
       q: n,
       desc: q.text + (doc.obs[n] ? " — " + doc.obs[n] : ""),
-      action: "",
+      action: sugAct(n),
       resp: AREA[doc.area].lider,
       due: addDays(doc.date, 14),
       status: "Aberto",
