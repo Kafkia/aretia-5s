@@ -10,7 +10,7 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
 
-<meta name="app-rev" content="Rev. 17">
+<meta name="app-rev" content="Rev. 18">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" media="print" onload="this.media=&#39;all&#39;">
 <style>
@@ -158,6 +158,7 @@ select:focus-visible,input:focus-visible,textarea:focus-visible,button:focus-vis
 .phadd{display:inline-flex;align-items:center;gap:6px;border:1.5px dashed var(--muted);border-radius:8px;padding:6px 12px;font-weight:600;font-size:14px;cursor:pointer;background:var(--surface);min-height:40px;color:var(--ink2)}
 .phadd svg{width:18px;height:18px}
 .phadd{position:relative;overflow:hidden}
+.phrow{flex-wrap:wrap}
 .phadd input[type=file][hidden]{display:block!important;position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;font-size:16px}
 .phrow{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
 .lb{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:70;display:flex;align-items:center;justify-content:center;padding:16px;cursor:zoom-out}
@@ -363,7 +364,6 @@ html{-webkit-text-size-adjust:100%}
 input,select,textarea{max-width:100%;min-width:0}
 input[type=date]{-webkit-appearance:none;appearance:none;display:block}
 .q[data-ans="nok"] .phadd{border-color:var(--bad);color:var(--bad);border-style:solid;background:var(--surface);background:color-mix(in srgb,var(--bad) 8%,var(--surface))}
-.q[data-ans="nok"] .phadd::after{content:" do problema"}
 #view-map .leaflet-container{isolation:isolate;z-index:0}
 .aret{display:inline-flex;align-items:center;gap:4px;padding:3px 7px 3px 5px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(247,147,30,.35);font:700 9px/1 Arial,sans-serif;letter-spacing:.14em;color:#F7931E;pointer-events:none;margin-left:auto}
 .aret svg{width:12px;height:12px}.aret small{font-weight:400;letter-spacing:.04em;opacity:.8;margin-right:2px;color:#fff}.aret{color:#F7931E!important}
@@ -481,7 +481,7 @@ window.addEventListener('load',function(){setTimeout(function(){if(!window.__5sO
       <div id="f-qs" style="display:flex;flex-direction:column;gap:10px"></div>
       <div class="card pad" style="display:flex;flex-direction:column;gap:10px">
         <div><span class="label">Fotos gerais da auditoria</span><div class="sub">Visão geral da área, quadro 5S, pontos de destaque. As fotos de cada Não OK ficam na própria pergunta.</div></div>
-        <div class="phrow"><div class="ph" id="ph-0"></div><label class="phadd"><input type="file" accept="image/*" multiple hidden data-q="0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg> Adicionar foto</label></div>
+        <div class="phrow"><div class="ph" id="ph-0"></div><label class="phadd"><input type="file" accept="image/*" capture="environment" hidden data-q="0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg> Câmera</label><label class="phadd"><input type="file" accept="image/*,.heic,.heif" multiple hidden data-q="0">🖼️ Galeria</label></div>
       </div>
       <div class="card pad"><label class="label" for="f-note">Comentário geral (opcional)</label><textarea id="f-note" rows="2" style="margin-top:6px"></textarea></div>
       <div class="stickybar"><span class="sub" id="f-live"></span><button class="btn acc" id="f-save" disabled>Salvar auditoria</button></div>
@@ -582,7 +582,7 @@ window.addEventListener('load',function(){setTimeout(function(){if(!window.__5sO
         <div class="field"><label class="label" for="n-due">Prazo (quando)</label><input type="date" id="n-due"></div>
         <div class="field"><label class="label" for="n-aud">Vincular à auditoria</label><select id="n-aud"></select></div>
       </div>
-      <div class="phrow"><div class="ph" id="ph-new"></div><label class="phadd"><input type="file" accept="image/*" multiple hidden id="n-ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg> Foto do problema</label></div>
+      <div class="phrow"><div class="ph" id="ph-new"></div><label class="phadd"><input type="file" accept="image/*,.heic,.heif" multiple hidden id="n-ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg> Foto do problema</label></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn acc" id="n-save">Salvar ação</button><button class="btn alt" id="n-cancel">Cancelar</button></div>
     </div>
     <div id="x-list" style="display:flex;flex-direction:column;gap:10px"></div>
@@ -626,7 +626,7 @@ window.addEventListener('load',function(){setTimeout(function(){if(!window.__5sO
         <li><b class="t">Iniciar no posto</b>Na data prevista, toque em <b>Auditar</b> no item do calendário (ou vá na aba <b>Auditar</b>). Área, dupla e Senso já vêm preenchidos; confira a data.</li>
         <li><b class="t">Escolher o Senso</b>Use o Senso do mês. Marque <b>Incluir Sensos anteriores</b> quando quiser verificar se a área mantém o que já foi conquistado.</li>
         <li><b class="t">Responder no local</b>Para cada pergunta, observe o posto e toque <b>Sim · OK</b> (situação adequada) ou <b>Não · Não OK</b> (a corrigir). Em todo Não OK, escreva a observação: o que, onde e quanto.</li>
-        <li><b class="t">Fotografar e planejar</b>Em cada Não OK, toque em <b>Foto do problema</b> quantas vezes precisar (câmera ou galeria). <b>Cada foto vira uma ação</b>: logo abaixo dela, preencha a ação (como), o responsável (quem) e o prazo (quando). A auditoria só pode ser salva com todas essas ações preenchidas. Use <b>Fotos gerais da auditoria</b> para a visão geral da área e o quadro 5S. As fotos são reduzidas automaticamente para não pesar no celular.</li>
+        <li><b class="t">Fotografar e planejar</b>Em cada Não OK, toque em <b>Câmera</b> ou <b>Galeria</b> quantas vezes precisar. <b>Cada foto vira uma ação</b>: logo abaixo dela, preencha a ação (como), o responsável (quem) e o prazo (quando). A auditoria só pode ser salva com todas essas ações preenchidas. Use <b>Fotos gerais da auditoria</b> para a visão geral da área e o quadro 5S. As fotos são reduzidas automaticamente para não pesar no celular.</li>
         <li><b class="t">Salvar e gerar o Plano de Ação</b>Toque em <b>Salvar auditoria</b>. Mostre ao Líder a nota e o veredito (avança ou mantém o Senso) e o app abre o <b>Passo 2 · Plano de Ação desta auditoria</b>: cada Não OK já vira uma ação, com a foto do problema. Preencha ali mesmo, com o Líder, a ação, o responsável e o prazo; use <b>+ Ação extra</b> para outras melhorias e <b>Relatório com fotos</b> para gerar o PDF.</li>
         <li><b class="t">Enviar a auditoria</b>Toque em <b>Baixar esta auditoria (.xlsx)</b> e, se houver fotos, em <b>Baixar fotos (.json)</b>. Envie os arquivos para a pasta <b>App 5S AEMCO › Dados › Importar</b> (OneDrive/SharePoint) ou pelo WhatsApp para o Coordenador do 5S. Até ser consolidada, a auditoria aparece com o aviso “não salva na base”.</li>
       </ol>
@@ -831,12 +831,26 @@ function compress(file, max = 1280, qual = 0.72) {
     const c = document.createElement("canvas");
     c.width = Math.max(1, Math.round(w * k));
     c.height = Math.max(1, Math.round(h * k));
-    c.getContext("2d").drawImage(src, 0, 0, c.width, c.height);
-    return c.toDataURL("image/jpeg", qual);
+    const x = c.getContext("2d");
+    x.fillStyle = "#fff";
+    x.fillRect(0, 0, c.width, c.height);
+    x.drawImage(src, 0, 0, c.width, c.height);
+    const d = c.toDataURL("image/jpeg", qual);
+    c.width = c.height = 0;
+    if (!/^data:image\/jpeg/.test(d) || d.length < 200) throw new Error("canvas");
+    return d;
   };
+  const viaBitmap = (small) => createImageBitmap(file, small ? { imageOrientation: "from-image", resizeWidth: max, resizeQuality: "medium" } : { imageOrientation: "from-image" }).then((b) => {
+    try {
+      return draw(b, b.width, b.height);
+    } finally {
+      if (b.close) b.close();
+    }
+  });
   const viaImg = () => new Promise((res, rej) => {
     const url = URL.createObjectURL(file);
     const img = new Image();
+    img.decoding = "async";
     img.onload = () => {
       try {
         res(draw(img, img.naturalWidth, img.naturalHeight));
@@ -868,12 +882,40 @@ function compress(file, max = 1280, qual = 0.72) {
     r.onerror = () => rej(new Error("leitura"));
     r.readAsDataURL(file);
   });
-  if (window.createImageBitmap) return createImageBitmap(file, { imageOrientation: "from-image" }).then((b) => {
-    const d = draw(b, b.width, b.height);
-    if (b.close) b.close();
-    return d;
-  }).catch(() => viaImg()).catch(() => viaReader());
-  return viaImg().catch(() => viaReader());
+  const big = (file.size || 0) > 15e5;
+  let p = window.createImageBitmap ? (big ? viaBitmap(true).catch(() => viaBitmap(false)) : viaBitmap(false)).catch(() => viaImg()) : viaImg();
+  return p.catch(() => viaReader()).catch(async (e) => {
+    if (!isHeic(file)) throw e;
+    const jpg = await heicToJpeg(file);
+    return compress(jpg, max, qual);
+  });
+}
+function isHeic(f) {
+  return /heic|heif/i.test((f.type || "") + " " + (f.name || ""));
+}
+let _heic = null;
+function heicLib() {
+  if (window.heic2any) return Promise.resolve(window.heic2any);
+  return _heic || (_heic = ["heic2any.min.js", "https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"].reduce((p, src) => p.catch(() => new Promise((res, rej) => {
+    const s = document.createElement("script");
+    s.src = src;
+    s.onload = () => window.heic2any ? res(window.heic2any) : rej(new Error("heic"));
+    s.onerror = () => {
+      s.remove();
+      rej(new Error("heic"));
+    };
+    document.head.appendChild(s);
+  })), Promise.reject(new Error("start"))).catch((e) => {
+    _heic = null;
+    throw e;
+  }));
+}
+async function heicToJpeg(f) {
+  toast("Convertendo foto HEIC…");
+  const h = await heicLib();
+  const out = await h({ blob: f, toType: "image/jpeg", quality: 0.8 });
+  const b = Array.isArray(out) ? out[0] : out;
+  return new File([b], (f.name || "foto").replace(/\.\w+$/, "") + ".jpg", { type: "image/jpeg" });
 }
 async function phAdd(files, meta) {
   var _a2;
@@ -892,7 +934,7 @@ async function phAdd(files, meta) {
       await PHDB.put(p);
       n++;
     } catch (er) {
-      toast(/heic|heif/i.test(f.type + f.name) ? "Foto em formato HEIC não suportado neste navegador. No iPhone: Ajustes › Câmera › Formatos › Mais Compatível." : "Não foi possível ler a foto " + f.name);
+      toast(isHeic(f) ? "Não foi possível converter a foto HEIC (precisa de internet na primeira vez). No iPhone: Ajustes › Câmera › Formatos › Mais Compatível." : "Não foi possível ler a foto " + (f.name || "") + ". Tente tirar de novo pela câmera.");
     }
   }
   if (n) {
@@ -1296,7 +1338,7 @@ $("a-start").onclick = () => {
   const a = AREA[A.area];
   const s = CFG.sensos[A.senso];
   $("f-head").innerHTML = '<span class="dot" style="background:'.concat(a.color, '"></span>').concat(esc(a.name.split(" (")[0]), ' · <span style="color:var(').concat(SC[A.senso], ')">').concat(s.code, " ").concat(esc(s.jp), "</span> · ").concat(fmtD($("a-date").value));
-  $("f-qs").innerHTML = formQs().map((q) => '<div class="card q" style="--c:var('.concat(SC[q.si], ')" data-n="').concat(q.n, '">\n      <div class="label" style="color:var(').concat(SC[q.si], ')">').concat(CFG.sensos[q.si].code, " · Pergunta ").concat(q.n, '</div><div class="t">').concat(esc(q.t), '</div>\n      <div class="ans"><button data-v="ok" aria-pressed="false">Sim · OK</button><button data-v="nok" aria-pressed="false">Não · Não OK</button></div>\n      <input type="text" id="obs-').concat(q.n, '" placeholder="Observação (obrigatória se Não OK)" aria-label="Observação da pergunta ').concat(q.n, '">\n      <div class="phrow"><div class="ph" id="ph-').concat(q.n, '"></div><label class="phadd"><input type="file" accept="image/*" multiple hidden data-q="').concat(q.n, '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg> Foto</label></div>\n      <div class="pa" id="pa-').concat(q.n, '"></div></div>')).join("");
+  $("f-qs").innerHTML = formQs().map((q) => '<div class="card q" style="--c:var('.concat(SC[q.si], ')" data-n="').concat(q.n, '">\n      <div class="label" style="color:var(').concat(SC[q.si], ')">').concat(CFG.sensos[q.si].code, " · Pergunta ").concat(q.n, '</div><div class="t">').concat(esc(q.t), '</div>\n      <div class="ans"><button data-v="ok" aria-pressed="false">Sim · OK</button><button data-v="nok" aria-pressed="false">Não · Não OK</button></div>\n      <input type="text" id="obs-').concat(q.n, '" placeholder="Observação (obrigatória se Não OK)" aria-label="Observação da pergunta ').concat(q.n, '">\n      <div class="phrow"><div class="ph" id="ph-').concat(q.n, '"></div><label class="phadd"><input type="file" accept="image/*" capture="environment" hidden data-q="').concat(q.n, '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg> Câmera</label><label class="phadd"><input type="file" accept="image/*,.heic,.heif" multiple hidden data-q="').concat(q.n, '">🖼️ Galeria</label></div>\n      <div class="pa" id="pa-').concat(q.n, '"></div></div>')).join("");
   phClear(A.id);
   A.id = newId($("a-date").value, A.area);
   $("ph-0").innerHTML = "";
@@ -2060,7 +2102,7 @@ function renderActList(el, list, empty) {
     const si = CFG.sensos.findIndex((s) => s.code === a.senso);
     const id = esc(a.id);
     const pill = isLate(a) ? '<span class="pill" style="--c:var(--bad)">Vencida</span>' : a.status === "Concluído" ? '<span class="pill" style="--c:var(--ok)">Concluída</span>' : a.status === "Em andamento" ? '<span class="pill" style="--c:var(--warn)">Em andamento</span>' : '<span class="pill" style="--c:var(--muted)">Aberta</span>';
-    return '<div class="card act" style="--c:'.concat(ar.color, '" data-id="').concat(id, '">\n      <div class="top2"><span><b>').concat(esc(areaShort(a.area)), '</b> · <span style="color:var(').concat(SC[Math.max(si, 0)], ');font-weight:700">').concat(esc(a.senso)).concat(a.q ? " · P" + a.q : "", "</span> · ").concat(a.auditId ? "auditoria " + fmtD(a.date) : "ação avulsa " + fmtD(a.date), "</span>").concat(pill, '</div>\n      <div style="font-weight:600">').concat(esc(a.desc), '</div>\n      <div class="g">\n        <div class="field w"><label class="label" for="ac-').concat(id, '">Ação (como)</label><input type="text" id="ac-').concat(id, '" data-f="action" value="').concat(esc(a.action), '" placeholder="O que será feito"></div>\n        <div class="field"><label class="label" for="rs-').concat(id, '">Responsável</label><input type="text" id="rs-').concat(id, '" data-f="resp" value="').concat(esc(a.resp), '"></div>\n        <div class="field"><label class="label" for="du-').concat(id, '">Prazo</label><input type="date" id="du-').concat(id, '" data-f="due" value="').concat(esc(a.due), '"></div>\n        <div class="field"><label class="label" for="st-').concat(id, '">Status</label><select id="st-').concat(id, '" data-f="status">').concat(["Aberto", "Em andamento", "Concluído"].map((o) => "<option ".concat(o === a.status ? "selected" : "", ">").concat(o, "</option>")).join(""), '</select></div>\n      </div>\n      <div class="field"><label class="label" for="nt-').concat(id, '">Registro de melhoria</label><input type="text" id="nt-').concat(id, '" data-f="note" value="').concat(esc(a.note), '" placeholder="O que foi feito / evidência"></div>\n      <div class="phrow">\n        <div class="phgrp"><span class="label">Antes</span><div class="phrow"><div class="ph" data-pha="').concat(id, '"></div><label class="phadd"><input type="file" accept="image/*" multiple hidden data-actph="antes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg> Antes</label></div></div>\n        <div class="phgrp"><span class="label">Depois</span><div class="phrow"><div class="ph" data-phd="').concat(id, '"></div><label class="phadd"><input type="file" accept="image/*" multiple hidden data-actph="depois"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg> Depois</label></div></div>\n      </div>\n      <div style="display:flex;justify-content:flex-end">').concat(pendingActDel === a.id ? '<span class="confirm"><span class="sub">Excluir esta ação?</span><button class="btn sm" style="background:var(--bad)" data-actdel="'.concat(id, '">Excluir</button><button class="btn alt sm" data-actcancel="1">Cancelar</button></span>') : '<button class="btn alt sm" data-actask="'.concat(id, '">Excluir ação</button>'), "</div>\n    </div>");
+    return '<div class="card act" style="--c:'.concat(ar.color, '" data-id="').concat(id, '">\n      <div class="top2"><span><b>').concat(esc(areaShort(a.area)), '</b> · <span style="color:var(').concat(SC[Math.max(si, 0)], ');font-weight:700">').concat(esc(a.senso)).concat(a.q ? " · P" + a.q : "", "</span> · ").concat(a.auditId ? "auditoria " + fmtD(a.date) : "ação avulsa " + fmtD(a.date), "</span>").concat(pill, '</div>\n      <div style="font-weight:600">').concat(esc(a.desc), '</div>\n      <div class="g">\n        <div class="field w"><label class="label" for="ac-').concat(id, '">Ação (como)</label><input type="text" id="ac-').concat(id, '" data-f="action" value="').concat(esc(a.action), '" placeholder="O que será feito"></div>\n        <div class="field"><label class="label" for="rs-').concat(id, '">Responsável</label><input type="text" id="rs-').concat(id, '" data-f="resp" value="').concat(esc(a.resp), '"></div>\n        <div class="field"><label class="label" for="du-').concat(id, '">Prazo</label><input type="date" id="du-').concat(id, '" data-f="due" value="').concat(esc(a.due), '"></div>\n        <div class="field"><label class="label" for="st-').concat(id, '">Status</label><select id="st-').concat(id, '" data-f="status">').concat(["Aberto", "Em andamento", "Concluído"].map((o) => "<option ".concat(o === a.status ? "selected" : "", ">").concat(o, "</option>")).join(""), '</select></div>\n      </div>\n      <div class="field"><label class="label" for="nt-').concat(id, '">Registro de melhoria</label><input type="text" id="nt-').concat(id, '" data-f="note" value="').concat(esc(a.note), '" placeholder="O que foi feito / evidência"></div>\n      <div class="phrow">\n        <div class="phgrp"><span class="label">Antes</span><div class="phrow"><div class="ph" data-pha="').concat(id, '"></div><label class="phadd"><input type="file" accept="image/*,.heic,.heif" multiple hidden data-actph="antes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg> Antes</label></div></div>\n        <div class="phgrp"><span class="label">Depois</span><div class="phrow"><div class="ph" data-phd="').concat(id, '"></div><label class="phadd"><input type="file" accept="image/*,.heic,.heif" multiple hidden data-actph="depois"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg> Depois</label></div></div>\n      </div>\n      <div style="display:flex;justify-content:flex-end">').concat(pendingActDel === a.id ? '<span class="confirm"><span class="sub">Excluir esta ação?</span><button class="btn sm" style="background:var(--bad)" data-actdel="'.concat(id, '">Excluir</button><button class="btn alt sm" data-actcancel="1">Cancelar</button></span>') : '<button class="btn alt sm" data-actask="'.concat(id, '">Excluir ação</button>'), "</div>\n    </div>");
   }).join("") : '<div class="card pad sub">'.concat(empty, "</div>");
   list.forEach((a) => {
     const p = phForAction(a);
