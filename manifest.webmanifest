@@ -1,13 +1,13 @@
 {
- "name": "5S AEMCO – Auditoria e Plano de Ação",
- "short_name": "5S AEMCO",
- "description": "Programa 5S AEMCO · Lean Up · Lean Way Consulting · Rev. 11",
+ "name": "Aretia 5S – Auditoria 5S e plano de ação",
+ "short_name": "Aretia 5S",
+ "description": "Aretia 5S · Auditoria 5S digital · Rev. 15",
  "start_url": "./index.html",
  "scope": "./",
  "display": "standalone",
  "orientation": "portrait",
- "background_color": "#0B1630",
- "theme_color": "#16253F",
+ "background_color": "#0E121B",
+ "theme_color": "#0E121B",
  "lang": "pt-BR",
  "icons": [
   {
