@@ -10,7 +10,7 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
 
-<meta name="app-rev" content="Rev. 20">
+<meta name="app-rev" content="Rev. 21">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" media="print" onload="this.media=&#39;all&#39;">
 <style>
@@ -460,7 +460,7 @@ window.addEventListener('load',function(){setTimeout(function(){if(!window.__5sO
     </div>
 
     <div class="card pad">
-      <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px"><h3 id="qt-title">Perguntas</h3><span class="sub">Nota por pergunta · meta 80%</span></div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px"><h3 id="qt-title">Perguntas</h3><span class="sub">P1 a P25 = as 25 perguntas do checklist (5 por Senso) · nota por pergunta · meta 80%</span></div>
       <div class="scroll"><table class="qtable" id="qtable"></table></div>
     </div>
 
@@ -682,7 +682,7 @@ window.addEventListener('load',function(){setTimeout(function(){if(!window.__5sO
       <h3>4. Leitura do dashboard – Comitê (mensal)</h3>
       <div class="scroll"><table class="rule">
         <tr><th>Elemento</th><th>Como ler</th><th>Ação esperada</th></tr>
-        <tr><td><b>Radar 5S</b></td><td>25 eixos: 5 perguntas por Senso, cada Senso em uma cor. Anéis de 20% a 100%; a linha verde tracejada é a meta de 80%.</td><td>Pétalas dentro da linha verde indicam perguntas a atacar.</td></tr>
+        <tr><td><b>Radar 5S</b></td><td>Uma fatia por Senso, preenchida até a nota da auditoria (% de perguntas OK). Círculos de 20% a 100%; o círculo verde tracejado é a meta de 80%.</td><td>Fatia que não chega ao círculo verde: Senso ainda não validado. As perguntas (P1 a P25) e o resultado de cada uma ficam na tabela abaixo do radar.</td></tr>
         <tr><td><b>Mapa de calor</b></td><td>% de OK por área e Senso. Verde ≥ 80%, amarelo 50–79%, vermelho &lt; 50%.</td><td>Priorizar apoio às áreas vermelhas.</td></tr>
         <tr><td><b>Evolução por rodada</b></td><td>Nota de cada rodada quinzenal.</td><td>Área sem evolução em 2 rodadas: Comitê visita a área.</td></tr>
         <tr><td><b>Áreas com Senso validado</b></td><td>Quantas das 9 áreas já atingiram 80% no Senso da meta do mês.</td><td>Meta: 9/9 ao fim de cada mês.</td></tr>
@@ -1076,72 +1076,42 @@ function currentSenso(areaId) {
   return 4;
 }
 function radarSVG(data, opts = {}) {
-  const S = opts.size || 620, c = S / 2, R = S / 2 - (opts.mini ? 12 : 104), N = 25, step = 2 * Math.PI / N;
-  const ang = (i) => -Math.PI / 2 + (i + 0.5) * step;
-  const pt = (i, v) => [c + Math.cos(ang(i)) * R * v, c + Math.sin(ang(i)) * R * v];
-  const grid = css("--grid"), ink2 = css("--ink2"), muted = css("--muted");
-  const PX = opts.mini ? 0 : 80;
+  const S = opts.size || 620, c = S / 2, R = S / 2 - (opts.mini ? 12 : 96), step = 2 * Math.PI / 5;
+  const grid = css("--grid"), ink2 = css("--ink2"), muted = css("--muted"), ink = css("--ink");
+  const a0 = (si) => -Math.PI / 2 - step / 2 + si * step, P = (a, r) => [c + Math.cos(a) * r, c + Math.sin(a) * r];
+  const wedge = (si, r, gap) => {
+    const s = a0(si) + gap, e = a0(si) + step - gap, p0 = P(s, r), p1 = P(e, r);
+    return "M".concat(c, ",").concat(c, " L").concat(p0, " A").concat(r, ",").concat(r, " 0 0 1 ").concat(p1, " Z");
+  };
+  const PX = opts.mini ? 0 : 70;
   let g = '<svg viewBox="'.concat(-PX, " 0 ").concat(S + 2 * PX, " ").concat(S, '" role="img" aria-label="').concat(esc(opts.label || "Radar 5S"), '">');
+  for (let si = 0; si < 5; si++) g += '<path d="'.concat(wedge(si, R, 0.012), '" fill="').concat(css(SC[si]), '" fill-opacity=".07"/>');
+  for (let l = 1; l <= 5; l++) g += '<circle cx="'.concat(c, '" cy="').concat(c, '" r="').concat(R * l / 5, '" fill="none" stroke="').concat(grid, '" stroke-width="1"/>');
   for (let si = 0; si < 5; si++) {
-    const col = css(SC[si]);
-    const a0 = -Math.PI / 2 + si * 5 * step, a1 = a0 + 5 * step;
-    const p0 = [c + Math.cos(a0) * R, c + Math.sin(a0) * R], p1 = [c + Math.cos(a1) * R, c + Math.sin(a1) * R];
-    const dim = opts.focus !== "all" && opts.focus !== si;
-    g += '<path d="M'.concat(c, ",").concat(c, " L").concat(p0, " A").concat(R, ",").concat(R, " 0 0 1 ").concat(p1, ' Z" fill="').concat(col, '" fill-opacity="').concat(dim ? 0.03 : 0.09, '" stroke="none"/>');
-  }
-  for (let l = 1; l <= 5; l++) {
-    const pts = Array.from({ length: N }, (_, i) => pt(i, l / 5).join(",")).join(" ");
-    g += '<polygon points="'.concat(pts, '" fill="none" stroke="').concat(grid, '" stroke-width="').concat(l === 4 ? 0 : 1, '" ').concat(l === 5 ? "" : "", "/>");
-  }
-  g += '<polygon points="'.concat(Array.from({ length: N }, (_, i) => pt(i, 0.8).join(",")).join(" "), '" fill="none" stroke="').concat(css("--ok"), '" stroke-width="').concat(opts.mini ? 1.2 : 1.8, '" stroke-dasharray="6 5"/>');
-  for (let i = 0; i < N; i++) {
-    const [x, y] = pt(i, 1);
-    const major = i % 5 === 0;
-    g += '<line x1="'.concat(c, '" y1="').concat(c, '" x2="').concat(x, '" y2="').concat(y, '" stroke="').concat(grid, '" stroke-width="').concat(major ? 1.6 : 0.8, '"/>');
-  }
-  for (let si = 0; si < 5; si++) {
-    const a = -Math.PI / 2 + si * 5 * step;
-    g += '<line x1="'.concat(c, '" y1="').concat(c, '" x2="').concat(c + Math.cos(a) * R, '" y2="').concat(c + Math.sin(a) * R, '" stroke="').concat(ink2, '" stroke-width="1.4" stroke-opacity=".55"/>');
+    const [x, y] = P(a0(si), R);
+    g += '<line x1="'.concat(c, '" y1="').concat(c, '" x2="').concat(x, '" y2="').concat(y, '" stroke="').concat(grid, '" stroke-width="1.4"/>');
   }
   for (let si = 0; si < 5; si++) {
     const d = data[si];
-    if (!d) continue;
+    if (!d || d.pct == null) continue;
     const col = css(SC[si]);
     const dim = opts.focus !== "all" && opts.focus !== si;
-    const pts = [[c, c]];
-    const idx = [];
-    for (let qi = 0; qi < 5; qi++) {
-      const v = d.qs[qi];
-      const i = si * 5 + qi;
-      const vv = v == null ? 0 : Math.max(v, 0.02);
-      pts.push(pt(i, vv));
-      idx.push([i, v]);
+    g += '<path d="'.concat(wedge(si, Math.max(R * d.pct, 3), 0.03), '" fill="').concat(col, '" fill-opacity="').concat(dim ? 0.25 : 0.85, '" stroke="').concat(col, '" stroke-width="1.5"><title>').concat(esc(CFG.sensos[si].code), " ").concat(esc(CFG.sensos[si].jp), ": ").concat(pctTxt(d.pct), " OK</title></path>");
+    if (!opts.mini) {
+      const am = a0(si) + step / 2, [x, y] = P(am, Math.max(R * d.pct, 18) + 16);
+      g += '<text x="'.concat(x, '" y="').concat(y, '" text-anchor="middle" dominant-baseline="middle" font-family="IBM Plex Mono,monospace" font-weight="700" font-size="17" fill="').concat(ink, '" stroke="').concat(css("--surface"), '" stroke-width="4" paint-order="stroke">').concat(pctTxt(d.pct), "</text>");
     }
-    g += '<polygon points="'.concat(pts.map((p) => p.join(",")).join(" "), '" fill="').concat(col, '" fill-opacity="').concat(dim ? 0.12 : 0.42, '" stroke="').concat(col, '" stroke-width="').concat(opts.mini ? 1.5 : 2.5, '" stroke-linejoin="round" stroke-opacity="').concat(dim ? 0.4 : 1, '"/>');
-    if (!opts.mini) idx.forEach(([i, v]) => {
-      if (v == null) return;
-      const [x, y] = pt(i, Math.max(v, 0.02));
-      const q = QN[i];
-      g += '<circle cx="'.concat(x, '" cy="').concat(y, '" r="5.5" fill="').concat(col, '" stroke="').concat(css("--surface"), '" stroke-width="2" opacity="').concat(dim ? 0.4 : 1, '"><title>').concat(esc(CFG.sensos[si].code), " · P").concat(q.n, ": ").concat(esc(q.text), " — ").concat(pctTxt(v), " OK</title></circle>");
-    });
   }
+  g += '<circle cx="'.concat(c, '" cy="').concat(c, '" r="').concat(R * 0.8, '" fill="none" stroke="').concat(css("--ok"), '" stroke-width="').concat(opts.mini ? 1.2 : 2, '" stroke-dasharray="6 5"/>');
   if (!opts.mini) {
     [20, 40, 60, 80, 100].forEach((l, k) => {
-      const y = c - R * (k + 1) / 5;
-      g += '<text x="'.concat(c + 4, '" y="').concat(y - 3, '" font-size="11" fill="').concat(muted, '" font-family="IBM Plex Mono,monospace">').concat(l, "%</text>");
+      g += '<text x="'.concat(c + 4, '" y="').concat(c - R * (k + 1) / 5 - 3, '" font-size="11" fill="').concat(l === 80 ? css("--ok") : muted, '" font-family="IBM Plex Mono,monospace">').concat(l, "%").concat(l === 80 ? " meta" : "", "</text>");
     });
-    for (let i = 0; i < N; i++) {
-      const [x, y] = pt(i, 1.07);
-      const q = QN[i];
-      g += '<text x="'.concat(x, '" y="').concat(y, '" font-size="11.5" fill="').concat(ink2, '" text-anchor="middle" dominant-baseline="middle" font-family="IBM Plex Mono,monospace" font-weight="600">P').concat(q.n, "</text>");
-    }
     for (let si = 0; si < 5; si++) {
-      const a = -Math.PI / 2 + (si * 5 + 2.5) * step;
-      const ca = Math.cos(a);
-      const anc = ca > 0.3 ? "start" : ca < -0.3 ? "end" : "middle";
-      const x = c + ca * (R + 30), y = c + Math.sin(a) * (R + 34) + (Math.sin(a) > 0.5 ? 14 : 0);
-      const s = CFG.sensos[si];
-      const d = data[si];
+      const am = a0(si) + step / 2, ca = Math.cos(am), anc = ca > 0.3 ? "start" : ca < -0.3 ? "end" : "middle";
+      const [x, y0] = P(am, R + 26);
+      const y = y0 + (Math.sin(am) > 0.5 ? 12 : 0);
+      const s = CFG.sensos[si], d = data[si];
       g += '<text x="'.concat(x, '" y="').concat(y - 9, '" text-anchor="').concat(anc, '" font-family="Barlow Condensed,Arial Narrow,sans-serif" font-weight="700" font-size="22" fill="').concat(css(SC[si]), '">').concat(s.code, " ").concat(esc(s.jp), "</text>");
       g += '<text x="'.concat(x, '" y="').concat(y + 12, '" text-anchor="').concat(anc, '" font-family="IBM Plex Mono,monospace" font-weight="600" font-size="13" fill="').concat(d ? ink2 : muted, '">').concat(d ? pctTxt(d.pct) + " OK" : "não auditado", "</text>");
     }
@@ -1175,7 +1145,7 @@ function renderDash() {
   const areaName = state.area === "all" ? "Todas as áreas (média)" : "".concat(state.area, ". ").concat(AREA[+state.area].name);
   $("radar-title").textContent = "Radar 5S · " + areaName;
   const rl = state.round === "last" ? "auditoria mais recente de cada Senso" : CFG.rounds.find((r) => r.code === state.round).label;
-  $("radar-sub").textContent = "5 níveis (20% a 100%) · 5 perguntas por Senso · ".concat(rl, " · linha tracejada verde = meta 80%");
+  $("radar-sub").textContent = "Cada fatia é um Senso, preenchida até a nota da auditoria (% de perguntas OK) · ".concat(rl, " · círculo verde tracejado = meta 80%. As perguntas (P1 a P25) estão na tabela abaixo.");
   $("radar").innerHTML = radarSVG(data, { focus, label: "Radar 5S " + areaName });
   $("legend").innerHTML = CFG.sensos.map((s, i) => {
     var _a3;
