@@ -10,7 +10,7 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
 
-<meta name="app-rev" content="Rev. 21">
+<meta name="app-rev" content="Rev. 22">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" media="print" onload="this.media=&#39;all&#39;">
 <style>
@@ -372,7 +372,9 @@ html{-webkit-text-size-adjust:100%}
   #f-qs > :not(.q){grid-column:1/-1}
 }
 @media (min-width:1600px){ #x-list{grid-template-columns:repeat(3,minmax(0,1fr))} }
+@media (min-width:1100px) and (max-width:1420px){ .top-in .tab{padding:14px 7px;font-size:16px} .top-in .logos img{height:16px} .hdr2 .net{font-size:11px} }
 html[data-dev="notebook"] .phadd.cam{display:none}
+.act.ro input:disabled,.act.ro select:disabled,.act input:disabled{background:var(--surface2);color:var(--ink2);opacity:1}.perm{font-size:12px}
 .q.drop{outline:3px dashed var(--accent);outline-offset:-3px}
 @media (max-width:480px){.brand h1 small{display:none}.brand .hs{display:none}.brand h1{white-space:nowrap}.brand{gap:8px}.logos{padding:4px 6px;gap:6px}}
 .act .field,.form-new .field,.pa-g .field{min-width:0}
@@ -970,6 +972,11 @@ document.addEventListener("click", (e) => {
   if (rm) {
     const id = rm.dataset.rmph;
     const ph = PHOTOS.find((p) => p.id === id);
+    const pa = ph && ACTIONS.find((x) => x.id === ph.owner);
+    if (pa && (ph.kind === "depois" ? !canLeadAct(pa) : !canEditAct(pa))) {
+      toast("Você não pode remover esta foto.");
+      return;
+    }
     PHDB.del(id);
     markDel("photos", id);
     PHOTOS = PHOTOS.filter((p) => p.id !== id);
@@ -2074,6 +2081,7 @@ function filteredActs() {
 }
 let pendingActDel = null;
 function renderActs() {
+  if ($("x-new")) $("x-new").hidden = !canCreateAct();
   const fs = $("x-st").value;
   const base = filteredActs();
   const k = { t: base.length, o: base.filter((a) => a.status === "Aberto").length, c: base.filter((a) => a.status === "Concluído").length, v: base.filter(isLate).length };
@@ -2081,13 +2089,43 @@ function renderActs() {
   const list = base.filter((a) => !fs || (fs === "venc" ? isLate(a) : a.status === fs)).sort((a, b) => (a.status === "Concluído") - (b.status === "Concluído") || (a.due || "").localeCompare(b.due || ""));
   renderActList($("x-list"), list, "Nenhuma ação para este filtro.");
 }
+const samePerson = (a, b) => String(a || "").trim().toLowerCase() === String(b || "").trim().toLowerCase();
+function isAdmin() {
+  return !!USER && /Coordena|Excelência Operacional/i.test(USER.role || "");
+}
+function actAuditors(a) {
+  const au = a.auditId ? AUDITS.find((x) => x.id === a.auditId) : null;
+  return au ? (au.auditors || []).filter(Boolean) : [a.by].filter(Boolean);
+}
+function canEditAct(a) {
+  if (!SIMPLE) return true;
+  if (!USER) return false;
+  if (isAdmin()) return true;
+  return actAuditors(a).some((n) => samePerson(n, USER.name));
+}
+function canLeadAct(a) {
+  if (!SIMPLE) return true;
+  if (!USER) return false;
+  if (isAdmin()) return true;
+  return USER.leadArea != null && +USER.leadArea === +a.area;
+}
+function canCreateAct() {
+  if (!SIMPLE) return true;
+  return !!USER && (isAdmin() || /Auditor/i.test(USER.role || ""));
+}
+function permHint(a) {
+  if (!SIMPLE) return "";
+  const au = actAuditors(a), ar = AREA[a.area] || {};
+  return '<div class="sub perm">🔒 Ação: '.concat(esc(au.join(" / ") || "auditores"), " · Depois e registro: ").concat(esc([ar.lider, ar.colider].filter(Boolean).join(" / ") || "líder da área"), "</div>");
+}
 function renderActList(el, list, empty) {
   el.innerHTML = list.length ? list.map((a) => {
     const ar = AREA[a.area];
     const si = CFG.sensos.findIndex((s) => s.code === a.senso);
     const id = esc(a.id);
     const pill = isLate(a) ? '<span class="pill" style="--c:var(--bad)">Vencida</span>' : a.status === "Concluído" ? '<span class="pill" style="--c:var(--ok)">Concluída</span>' : a.status === "Em andamento" ? '<span class="pill" style="--c:var(--warn)">Em andamento</span>' : '<span class="pill" style="--c:var(--muted)">Aberta</span>';
-    return '<div class="card act" style="--c:'.concat(ar.color, '" data-id="').concat(id, '">\n      <div class="top2"><span><b>').concat(esc(areaShort(a.area)), '</b> · <span style="color:var(').concat(SC[Math.max(si, 0)], ');font-weight:700">').concat(esc(a.senso)).concat(a.q ? " · P" + a.q : "", "</span> · ").concat(a.auditId ? "auditoria " + fmtD(a.date) : "ação avulsa " + fmtD(a.date), "</span>").concat(pill, '</div>\n      <div style="font-weight:600">').concat(esc(a.desc), '</div>\n      <div class="g">\n        <div class="field w"><label class="label" for="ac-').concat(id, '">Ação (como)</label><input type="text" id="ac-').concat(id, '" data-f="action" value="').concat(esc(a.action), '" placeholder="O que será feito"></div>\n        <div class="field"><label class="label" for="rs-').concat(id, '">Responsável</label><input type="text" id="rs-').concat(id, '" data-f="resp" value="').concat(esc(a.resp), '"></div>\n        <div class="field"><label class="label" for="du-').concat(id, '">Prazo</label><input type="date" id="du-').concat(id, '" data-f="due" value="').concat(esc(a.due), '"></div>\n        <div class="field"><label class="label" for="st-').concat(id, '">Status</label><select id="st-').concat(id, '" data-f="status">').concat(["Aberto", "Em andamento", "Concluído"].map((o) => "<option ".concat(o === a.status ? "selected" : "", ">").concat(o, "</option>")).join(""), '</select></div>\n      </div>\n      <div class="field"><label class="label" for="nt-').concat(id, '">Registro de melhoria</label><input type="text" id="nt-').concat(id, '" data-f="note" value="').concat(esc(a.note), '" placeholder="O que foi feito / evidência"></div>\n      <div class="phrow">\n        <div class="phgrp"><span class="label">Antes</span><div class="phrow"><div class="ph" data-pha="').concat(id, '"></div><label class="phadd"><input type="file" accept="image/*,.heic,.heif" multiple hidden data-actph="antes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg> Antes</label></div></div>\n        <div class="phgrp"><span class="label">Depois</span><div class="phrow"><div class="ph" data-phd="').concat(id, '"></div><label class="phadd"><input type="file" accept="image/*,.heic,.heif" multiple hidden data-actph="depois"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg> Depois</label></div></div>\n      </div>\n      <div style="display:flex;justify-content:flex-end">').concat(pendingActDel === a.id ? '<span class="confirm"><span class="sub">Excluir esta ação?</span><button class="btn sm" style="background:var(--bad)" data-actdel="'.concat(id, '">Excluir</button><button class="btn alt sm" data-actcancel="1">Cancelar</button></span>') : '<button class="btn alt sm" data-actask="'.concat(id, '">Excluir ação</button>'), "</div>\n    </div>");
+    const E = canEditAct(a) ? "" : " disabled", L = canLeadAct(a) ? "" : " disabled";
+    return '<div class="card act'.concat(E ? " ro" : "", '" style="--c:').concat(ar.color, '" data-id="').concat(id, '">\n      <div class="top2"><span><b>').concat(esc(areaShort(a.area)), '</b> · <span style="color:var(').concat(SC[Math.max(si, 0)], ');font-weight:700">').concat(esc(a.senso)).concat(a.q ? " · P" + a.q : "", "</span> · ").concat(a.auditId ? "auditoria " + fmtD(a.date) : "ação avulsa " + fmtD(a.date), "</span>").concat(pill, '</div>\n      <div style="font-weight:600">').concat(esc(a.desc), '</div>\n      <div class="g">\n        <div class="field w"><label class="label" for="ac-').concat(id, '">Ação (como)</label><input type="text" id="ac-').concat(id, '" data-f="action" value="').concat(esc(a.action), '" placeholder="O que será feito"').concat(E, '></div>\n        <div class="field"><label class="label" for="rs-').concat(id, '">Responsável</label><input type="text" id="rs-').concat(id, '" data-f="resp" value="').concat(esc(a.resp), '"').concat(E, '></div>\n        <div class="field"><label class="label" for="du-').concat(id, '">Prazo</label><input type="date" id="du-').concat(id, '" data-f="due" value="').concat(esc(a.due), '"').concat(E, '></div>\n        <div class="field"><label class="label" for="st-').concat(id, '">Status</label><select id="st-').concat(id, '" data-f="status"').concat(E, ">").concat(["Aberto", "Em andamento", "Concluído"].map((o) => "<option ".concat(o === a.status ? "selected" : "", ">").concat(o, "</option>")).join(""), '</select></div>\n      </div>\n      <div class="field"><label class="label" for="nt-').concat(id, '">Registro de melhoria</label><input type="text" id="nt-').concat(id, '" data-f="note" value="').concat(esc(a.note), '" placeholder="').concat(L ? "Preenchido pelo líder da área" : "O que foi feito / evidência", '"').concat(L, '></div>\n      <div class="phrow">\n        <div class="phgrp"><span class="label">Antes</span><div class="phrow"><div class="ph" data-pha="').concat(id, '"></div>').concat(E ? "" : '<label class="phadd"><input type="file" accept="image/*,.heic,.heif" multiple hidden data-actph="antes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg> Antes</label>', '</div></div>\n        <div class="phgrp"><span class="label">Depois</span><div class="phrow"><div class="ph" data-phd="').concat(id, '"></div>').concat(L ? "" : '<label class="phadd"><input type="file" accept="image/*,.heic,.heif" multiple hidden data-actph="depois"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg> Depois</label>', "</div></div>\n      </div>\n      ").concat(permHint(a), '<div style="display:flex;justify-content:flex-end"').concat(E ? " hidden" : "", ">").concat(pendingActDel === a.id ? '<span class="confirm"><span class="sub">Excluir esta ação?</span><button class="btn sm" style="background:var(--bad)" data-actdel="'.concat(id, '">Excluir</button><button class="btn alt sm" data-actcancel="1">Cancelar</button></span>') : '<button class="btn alt sm" data-actask="'.concat(id, '">Excluir ação</button>'), "</div>\n    </div>");
   }).join("") : '<div class="card pad sub">'.concat(empty, "</div>");
   list.forEach((a) => {
     const p = phForAction(a);
@@ -2097,10 +2135,10 @@ function renderActList(el, list, empty) {
     };
     const ea = el.querySelector('[data-pha="'.concat(CSS.escape(a.id), '"]')), ed = el.querySelector('[data-phd="'.concat(CSS.escape(a.id), '"]'));
     phShow(ea, p.antes, false);
-    ea && p.antes.forEach((x, i) => {
+    ea && canEditAct(a) && p.antes.forEach((x, i) => {
       if (own(x.id)) ea.children[i].insertAdjacentHTML("beforeend", '<button type="button" data-rmph="'.concat(esc(x.id), '" aria-label="Remover foto">×</button>'));
     });
-    phShow(ed, p.depois, true);
+    phShow(ed, p.depois, canLeadAct(a));
   });
 }
 function renderDoneActs() {
@@ -2200,6 +2238,7 @@ function initActs() {
       done: "",
       note: "",
       manual: true,
+      by: USER ? USER.name : "",
       unsaved: true
     });
     DIRTY = true;
@@ -2224,6 +2263,12 @@ function initActs() {
       if (!card) return;
       const a = ACTIONS.find((x) => x.id === card.dataset.id);
       if (!a) return;
+      const lead = e.target.dataset.actph === "depois" || e.target.dataset.f === "note";
+      if (lead ? !canLeadAct(a) : !canEditAct(a)) {
+        toast(lead ? "Só o líder da área registra o Depois e a melhoria." : "Só os auditores desta auditoria alteram a ação.");
+        rerenderActs();
+        return;
+      }
       if (e.target.dataset.actph) {
         await phAdd(e.target.files, { owner: a.id, kind: e.target.dataset.actph });
         e.target.value = "";
@@ -2250,6 +2295,8 @@ function initActs() {
       } else if (t.dataset.actcancel) {
         pendingActDel = null;
         rerenderActs();
+      } else if (t.dataset.actdel && !canEditAct(ACTIONS.find((x) => x.id === t.dataset.actdel) || {})) {
+        toast("Só os auditores desta auditoria podem excluir a ação.");
       } else if (t.dataset.actdel) {
         phClear(t.dataset.actdel);
         markDel("actions", t.dataset.actdel);
@@ -4655,12 +4702,13 @@ if (SIMPLE) {
   if (ib) ib.hidden = true;
 }
 async function whoAmI(greet) {
+  var _a2;
   if (!SIMPLE || !SB_ON || !PIN) return;
   try {
     const w = await rpc("pin_who", { p_pin: PIN });
     if (!w || !w.name) return;
-    if (!USER || USER.name !== w.name) {
-      USER = { id: "P-" + w.name.toLowerCase().replace(/[^a-z0-9]+/g, "-"), name: w.name, role: w.role, area: w.role, at: (/* @__PURE__ */ new Date()).toISOString(), consent: LGPD_V, sent: true };
+    if (!USER || USER.name !== w.name || USER.role !== w.role || ((_a2 = USER.leadArea) != null ? _a2 : null) !== (w.area == null ? null : +w.area)) {
+      USER = { id: "P-" + w.name.toLowerCase().replace(/[^a-z0-9]+/g, "-"), name: w.name, role: w.role, area: w.role, leadArea: w.area == null ? null : +w.area, at: (/* @__PURE__ */ new Date()).toISOString(), consent: LGPD_V, sent: true };
       try {
         localStorage.setItem("5s-user", JSON.stringify(USER));
       } catch (e) {
